@@ -52,6 +52,15 @@ header {
   border: 1px solid #f3f3f3;
   border-radius: 10px;
   padding: 0 15px;
+  position: relative;
+
+  .clear {
+    position: absolute;
+    right: 14px;
+    width: 18px;
+    height: 18px;
+    top: 14px;
+  }
 
   input {
     border: 0;
@@ -173,4 +182,35 @@ header {
 
 .items {
   flex: 1;
+}
+
+.cartEmpty {
+  text-align: center;
+
+  p {
+    width: 280px;
+    line-height: 24px;
+  }
+
+  .greenButton {
+    width: 254px;
+    margin-top: 20px;
+    height: 55px;
+      background: #9dd558;
+      border-radius: 18px;
+      border: 0;
+      color: #FFFFFF;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease-in-out;
+    
+      &:hover {
+        background: lighten(#9dd558, 5%);
+      }
+    
+      &:active {
+        background: darken(#9dd558, 5%);
+      }
+  }
 }
