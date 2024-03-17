@@ -74,5 +74,31 @@
     }
   ],
   "cart": [],
-  "favorites": []
+  "favorites": [
+    {
+      "id": "3",
+      "name": "Мужские Кроссовки Nike Blazer Mid Suede",
+      "imageUrl": "/img/sneakers/03.jpg",
+      "price": 8499
+    }
+  ],
+  "orders": [
+    {
+      "id": "bae2",
+      "items": [
+        {
+          "id": "12",
+          "name": "Мужские Кроссовки Nike Kyrie Flytrap IV",
+          "imageUrl": "/img/sneakers/12.jpg",
+          "price": 11299
+        },
+        {
+          "id": "5",
+          "name": "Мужские Кроссовки Under Armour Curry 8",
+          "imageUrl": "/img/sneakers/05.jpg",
+          "price": 15199
+        }
+      ]
+    }
+  ]
 }

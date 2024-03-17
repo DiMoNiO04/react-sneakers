@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Route, Routes } from 'react-router-dom';
 import Home from "./pages/Home";
 import Favorites from "./pages/Favorites";
+import AppContext from "./context";
 
 
 function App() {
@@ -14,21 +15,36 @@ function App() {
   const [items, setItems] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState('');
   const [favorites, setFavorites] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
-    axios.get('http://localhost:3001/items')
-      .then(res => setItems(res.data))
+    async function fetchData() {
+      const cartResponse = await axios.get('http://localhost:3001/cart');
+      const favoritesResponse = await axios.get('http://localhost:3001/favorites');
+      const itemsResponse = await axios.get('http://localhost:3001/items')
+     
+      setIsLoading(false);
 
-    axios.get('http://localhost:3001/cart')
-      .then(res => setCartItems(res.data))
+      setFavorites(favoritesResponse.data);
+      setCartItems(cartResponse.data);
+      setItems(itemsResponse.data);
+    }
 
-    axios.get('http://localhost:3001/favorites')
-      .then(res => setFavorites(res.data))
+    fetchData();
   }, [])
 
   const onAddToCart = (obj) => {
-    axios.post('http://localhost:3001/cart', obj);
-    setCartItems(prev => [...prev, obj]);
+    try {
+      if(cartItems.find((item) => Number(item.id) === Number(obj.id))) {
+        axios.delete(`http://localhost:3001/cart/${obj.id}`);
+        setCartItems(prev => prev.filter(item => Number(item.id) !== Number(obj.id)));
+      } else {
+        axios.post('http://localhost:3001/cart', obj);
+        setCartItems(prev => [...prev, obj]);
+      }
+    } catch(error) {
+
+    }
   }
 
   const onRemoveItem = (id) => {
@@ -36,13 +52,17 @@ function App() {
     setCartItems((prev) => prev.filter(item => item.id !== id))
   }
 
-  const onAddToFavorite = (obj) => {
-    if(favorites.find((favObj) => favObj.id === obj.id)) {
-      axios.delete(`http://localhost:3001/favorites/${obj.id}`);
-      setFavorites((prev) => prev.filter((item) => item.id !== obj.id));
-    } else {
-      axios.post('http://localhost:3001/favorites', obj);
-      setFavorites(prev => [...prev, obj]);
+  const onAddToFavorite = async (obj) => {
+    try {
+      if(favorites.find((item) => Number(item.id) === Number(obj.id))) {
+        axios.delete(`http://localhost:3001/favorites/${obj.id}`);
+        setFavorites((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)));
+      } else {
+        const { data } = await axios.post('http://localhost:3001/favorites', obj);
+        setFavorites(prev => [...prev, data]);
+      }
+    } catch(error) {
+      alert('Не удалось добавить в избранное');
     }
   }
 
@@ -50,28 +70,34 @@ function App() {
     setSearchValue(event.target.value.toLowerCase());
   }
 
+  const isItemAdded = (id) => {
+    return cartItems.some(obj => obj.id === id)
+  }
+
   return (
-    <div className="wrapper clear">
+    <AppContext.Provider value={{ items, cartItems, favorites, isItemAdded, onAddToFavorite, setCartOpened, setCartItems }}>
+      <div className="wrapper clear">
 
-      {cartOpened && <Drawer items={cartItems} onRemove={onRemoveItem} onClose={() => setCartOpened(false)} /> }
-      <Header onClickCart={() => setCartOpened(true)} />
+        {cartOpened && <Drawer items={cartItems} onRemove={onRemoveItem} onClose={() => setCartOpened(false)} /> }
+        <Header onClickCart={() => setCartOpened(true)} />
 
-      <Routes>
-	      <Route path="/" element={<Home 
-          items={items} 
-          searchValue={searchValue} 
-          setSearchValue={setSearchValue}
-          onAddToFavorite={onAddToFavorite}
-          onChangeSearchInput={onChangeSearchInput}
-          onAddToCart={onAddToCart}
-          />} 
-        />
-        <Route path="favorites"
-          element={<Favorites items={favorites} onAddToFavorite={onAddToFavorite} />} />
-      </Routes>
-      
-
-    </div>
+        <Routes>
+          <Route path="/" element={<Home 
+            items={items} 
+            cartItems={cartItems}
+            searchValue={searchValue} 
+            setSearchValue={setSearchValue}
+            onAddToFavorite={onAddToFavorite}
+            onChangeSearchInput={onChangeSearchInput}
+            onAddToCart={onAddToCart}
+            isLoading={isLoading}
+            />} 
+          />
+          <Route path="favorites"
+            element={<Favorites />} />
+        </Routes>
+      </div>
+    </AppContext.Provider>
   );
 }
 
