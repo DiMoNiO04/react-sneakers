@@ -6,6 +6,7 @@ import { Route, Routes } from 'react-router-dom';
 import Home from "./pages/Home";
 import Favorites from "./pages/Favorites";
 import AppContext from "./context";
+import Orders from "./pages/Orders";
 
 
 function App() {
@@ -19,37 +20,50 @@ function App() {
 
   React.useEffect(() => {
     async function fetchData() {
-      const cartResponse = await axios.get('http://localhost:3001/cart');
-      const favoritesResponse = await axios.get('http://localhost:3001/favorites');
-      const itemsResponse = await axios.get('http://localhost:3001/items')
-     
-      setIsLoading(false);
+      try {
+        const [cartResponse, favoritesResponse, itemsResponse] = await Promise.all([
+          axios.get('http://localhost:3001/cart'),
+          axios.get('http://localhost:3001/favorites'),
+          axios.get('http://localhost:3001/items')
+        ])
 
-      setFavorites(favoritesResponse.data);
-      setCartItems(cartResponse.data);
-      setItems(itemsResponse.data);
+        setIsLoading(false);
+
+        setFavorites(favoritesResponse.data);
+        setCartItems(cartResponse.data);
+        setItems(itemsResponse.data);
+      } catch(error) {
+        alert('Ошибка при запросе данных :(');
+        console.log(error);
+      }
     }
 
     fetchData();
   }, [])
 
-  const onAddToCart = (obj) => {
+  const onAddToCart = async (obj) => {
     try {
       if(cartItems.find((item) => Number(item.id) === Number(obj.id))) {
-        axios.delete(`http://localhost:3001/cart/${obj.id}`);
         setCartItems(prev => prev.filter(item => Number(item.id) !== Number(obj.id)));
+        await axios.delete(`http://localhost:3001/cart/${obj.id}`);
       } else {
-        axios.post('http://localhost:3001/cart', obj);
         setCartItems(prev => [...prev, obj]);
+        await axios.post('http://localhost:3001/cart', obj);
       }
     } catch(error) {
-
+      alert('Ошибка при добавление в корзину :(');
+      console.log(error);
     }
   }
 
-  const onRemoveItem = (id) => {
-    axios.delete(`http://localhost:3001/cart/${id}`);
-    setCartItems((prev) => prev.filter(item => item.id !== id))
+  const onRemoveItem = async (id) => {
+    try {
+      setCartItems((prev) => prev.filter(item => item.id !== id))
+      await axios.delete(`http://localhost:3001/cart/${id}`);
+    } catch(error) {
+      console.log('Ошибка при удалении из корзины');
+      console.log(error);
+    }
   }
 
   const onAddToFavorite = async (obj) => {
@@ -75,10 +89,11 @@ function App() {
   }
 
   return (
-    <AppContext.Provider value={{ items, cartItems, favorites, isItemAdded, onAddToFavorite, setCartOpened, setCartItems }}>
+    <AppContext.Provider value={{ items, cartItems, favorites, isItemAdded, onAddToFavorite, setCartOpened, setCartItems, onAddToCart }}>
       <div className="wrapper clear">
 
-        {cartOpened && <Drawer items={cartItems} onRemove={onRemoveItem} onClose={() => setCartOpened(false)} /> }
+        <Drawer items={cartItems} onRemove={onRemoveItem} onClose={() => setCartOpened(false)} opened={cartOpened} /> 
+
         <Header onClickCart={() => setCartOpened(true)} />
 
         <Routes>
@@ -95,6 +110,8 @@ function App() {
           />
           <Route path="favorites"
             element={<Favorites />} />
+          <Route path="orders" 
+            element={<Orders />} />
         </Routes>
       </div>
     </AppContext.Provider>

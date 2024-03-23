@@ -3,6 +3,7 @@ body {
   font-family: Inter, system-ui;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; 
+  overflow: hidden;
 }
 
 * {
@@ -67,37 +68,6 @@ header {
     padding: 13px;
     font-size: 16px;
     width: 200px;
-  }
-}
-
-.overlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  background-color: rgba(0, 0, 0, 0.1);
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-}
-
-.drawer {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  width: 420px;
-  height: 100%;
-  right: 0;
-  background: #FFFFFF;
-  box-shadow: -10px 4px 24px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-
-  h2 {
-    margin: 0;
-  }
-
-  .items {
-    overflow: auto;
-    margin-bottom: 40px;
   }
 }
 

@@ -99,6 +99,17 @@
           "price": 15199
         }
       ]
+    },
+    {
+      "id": "9727",
+      "items": [
+        {
+          "id": "5",
+          "name": "Мужские Кроссовки Under Armour Curry 8",
+          "imageUrl": "/img/sneakers/05.jpg",
+          "price": 15199
+        }
+      ]
     }
   ]
 }
